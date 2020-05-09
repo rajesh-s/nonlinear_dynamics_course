@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cobweb Exploration</title>
+    <link type="text/css" rel="stylesheet" href="css/plots.css" />
+
+    <script language="javascript" type="text/javascript" src="js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="js/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="js/cobweb.js"></script>
+
+
+
+
+</head>
+
+<body>
+
+
+    <table width="100%" ; height="100%" ; align="center">
+        <tr>
+            <td align="center">
+
+                <div id="form-control">
+                    <form>
+                        <fieldset align="center">
+
+                            <legend> Cobweb and Time Series Options</legend>
+
+                            Number of Initial Iterates:
+
+                            <input type="text" id="iterations" name="iterations" value="50"> Initial Condition (<i>x<sub>0</sub></i>):
+
+                            <input type="text" id="initial" name="initial" value="0.2"> Parameter (<i>r</i>):
+
+                            <input type="text" id="param" name="param" value="3">
+                        </fieldset>
+                        <br>
+                        <fieldset align="center">
+                            <legend> Cobweb and Time Series Control Panel</legend>
+                            <button type="button" name="mybutton" value="10" onclick="cobweb(this.form.iterations.value,this.form.initial.value,this.form.param.value)">Restart
+                            Simulation</button>
+
+                            <button type="button" name="removeButton" value="11" onclick="addIterate(0);">Add Iterate</button>
+                            <button type="button" name="removeButton" value="11" onclick="removeIterate(0);">Remove Iterate</button>
+                            <button type="button" name="removeButton" value="11" onclick="startAnimate(0);">Start Animation</button>
+                            <button type="button" name="removeButton" value="11" onclick="stopAnimate(0);">Stop Animation</button>
+                        </fieldset>
+                    </form>
+                </div>
+
+            </td>
+            <td align="center">
+                <div class="col-md-6">
+                    <div class="project_content">
+                        <h2>Logistic Map: Cobweb Plots and the Time Domain</h2>
+                        <p>For a walk through of this app, as well as exercises please see this <a href="worksheets/cobwebWS.pdf" target="_blank" style="color:dodgerblue"> <strong>worksheet</strong></a>.
+                            <br><br> The “Initial Condition (<i>x<sub>0</sub></i>)” text field changes the point from which the trajectory begins. This input is only well defined between 0 and 1. The “Parameter (r)” text field changes the logistic map’s
+                            r parameter. Alternatively, you can also change r by clicking your mouse on the cobweb plot. The top of the parabola will be moved to the point you clicked, effectively adjusting the r parameter. The r parameter currently selected
+                            will appear in the cobweb plot’s legend, as well as in the “Parameter (r)” text field. The “Number of Initial Iterates” field changes how many iterates of the logistic map are plotted initially, equivalently, how long the initial
+                            trajectory is.
+                        </p>
+                    </div>
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <td align="center">
+                <div class="cobweb-container">
+                    <div id="cobwebPlot" class="cobweb-placeholder"></div>
+                </div>
+            </td>
+            <td>
+                <div class="ts-container">
+                    <div id="tsPlot" class="ts-placeholder"></div>
+                </div>
+            </td>
+
+        </tr>
+
+    </table>
+
+
+
+
+</body>
+
+</html>
