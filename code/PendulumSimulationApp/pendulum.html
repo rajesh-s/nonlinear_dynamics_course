@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Joshua Garland: Department of Computer Science</title>
+    <link href="css/plots.css" rel="stylesheet" media="screen" />
+    <script language="javascript" type="text/javascript" src="js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="js/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="js/numeric-1.2.6.js"></script>
+    <script src="js/jquery-animate-css-rotate-scale.js" type="text/javascript"></script>
+    <script src="js/jquery-css-transform.js" type="text/javascript"></script>
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+
+    <script language="javascript" type="text/javascript" src="js/pendulumDynamics.js"></script>
+
+
+
+
+
+</head>
+
+<body>
+
+    <hr size="3" />
+    <h2 align="center"> Damped, Sinusoidally Driven Pendulum in the Earth's Gravitational Field </h2>
+
+
+
+
+
+    <p id="error"></p>
+    <p id="demo"></p>
+    <p id="demo2"></p>
+    <p id="demo3"></p>
+
+
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="pendulum-container">
+                        <div id="pendulumPlot" class="demo-placeholder"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="phase-container">
+                        <div id="phasePlot" class="demo-placeholder"></div>
+                </td>
+                </div>
+            </tr>
+            <tr>
+                <td>
+                    <div class="ts-container">
+                        <div id="tsPlot" class="ts-placeholder"></div>
+                    </div>
+
+
+                </td>
+                <td>
+
+                    <form>
+                        <div class="control-container">
+                            <fieldset align="center">
+                                <legend>Setup and Control</legend>
+                                <center>
+
+                                    <fieldset style="width:350px" align="center">
+                                        <legend>Initial Condition</legend>
+                                        $\theta_0$: <input type="text" size="20" id="theta0In" name="theta0In" value="0.2"><br> $\omega_0$: <input type="text" size="20" id="omega0In" name="omega0In" value="0.2">
+                                    </fieldset>
+                                    <fieldset style="width:475px" align="center">
+
+                                        <legend>Parameters:</legend>
+
+                                        $\beta$ (Drag Coefficient): <input type="text" id="betaIn" name="betaIn" value="0.5"><br> $\Omega$ (Drive Frequency):
+                                        <input type="text" id="driveFreqIn" name="driveFreqIn" value="0.666666"><br> $A$ (Drive Amplitude):
+
+                                        <input type="text" id="AIn" name="AIn" value="1.15">
+                                    </fieldset>
+
+                                    <fieldset style="width:475px" align="center">
+                                        <legend>Numerics and Plotting:</legend>
+
+                                        Integration Step Size:
+
+                                        <input type="text" size="10" id="stepIn" name="stepIn" value="0.1"><br> Max Trajectory Length: <input type="text" id="maxTrajLengthIn" name="maxTrajLengthIn" value="500">
+                                    </fieldset>
+
+                                    <button type="button" name="setupButton" value="10" onclick="setup(this.form.betaIn.value,this.form.AIn.value,this.form.driveFreqIn.value,this.form.theta0In.value,this.form.omega0In.value,this.form.maxTrajLengthIn.value,this.form.stepIn.value,0)">Setup</button>
+
+                                    <button type="button" name="startButton" value="11" onclick="generateTrajectory(this.form.betaIn.value,this.form.AIn.value,this.form.driveFreqIn.value,this.form.theta0In.value,this.form.omega0In.value,this.form.maxTrajLengthIn.value,this.form.stepIn.value,0);">Generate Full Trajectory</button>
+                                    <button type="button" name="startButton" value="11" onclick="removeTrans(0);">Remove Transient</button><br>
+
+
+                                    <button type="button" name="startButton" value="11" onclick="animateTrajectory(0);">Start Animation</button>
+
+                                    <button type="button" name="stopButton" value="11" onclick="stopAnimate(0);">Stop Animation</button><br>
+                                    <select id="dynamicSelectionDropDown" name="dynamicSelectionDropDown" onchange="predefinedSelection(this.value,0);setup(this.form.betaIn.value,this.form.AIn.value,this.form.driveFreqIn.value,this.form.theta0In.value,this.form.omega0In.value,this.form.maxTrajLengthIn.value,this.form.stepIn.value,0);">
+
+    
+  <option  value = "default">--Predefined Dynamics--</option>
+  <option  value = "s1cycle">Small 1-cycle</option>
+      <option value = "l1cycle">Large 1-Cycle</option>
+	      <option  value = "2cycle">2-Cycle</option>
+	      <option  value = "4cycle">4-Cycle</option>
+	      <option  value = "chaos">Chaotic</option>
+ </select>
+                                </center>
+
+                    </form>
+
+                    </fieldset>
+                </td>
+
+            </tr>
+
+    </table>
+    </div>
+
+
+</body>
+
+</html>
