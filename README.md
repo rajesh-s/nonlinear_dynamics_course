@@ -22,6 +22,15 @@ Code files are present [here](./code)
   - [Saddle points and Eigen vectors](#saddle-points-and-eigen-vectors)
   - [Stable and Unstable Manifolds of Fixed points](#stable-and-unstable-manifolds-of-fixed-points)
   - [Attractors](#attractors)
+  - [ODEs, Vector fields and Dynamical landscapes](#odes-vector-fields-and-dynamical-landscapes)
+  - [Numerical ODE Solvers](#numerical-ode-solvers)
+  - [Two simple ODE solvers: forward and backward Euler](#two-simple-ode-solvers-forward-and-backward-euler)
+  - [Solving ODE's of a SHO](#solving-odes-of-a-sho)
+  - [ODE Solvers: Error and Adaptation](#ode-solvers-error-and-adaptation)
+  - [Production ODE solvers](#production-ode-solvers)
+  - [Numerical dynamics and due diligence while picking ODE solvers](#numerical-dynamics-and-due-diligence-while-picking-ode-solvers)
+  - [Shadowing and Chaos](#shadowing-and-chaos)
+  - [Solving ODE's numerically, Review](#solving-odes-numerically-review)
 
 ## Terminology
 
@@ -45,7 +54,7 @@ Non integrabilitiy (if the ODE is non linear, possible that there might not exis
 ## Learning that made this course very interesting
 
 Concepts learnt:
-maps, return maps, logistic map, bifurcation diagram, time series analysis, dynamical systems, chaos, feigenbaum number, universality, standard maps, flows, [linear algebra,matrices,ODE] in the context on linear dynamics, numerical analysis
+maps, return maps, logistic map, bifurcation diagram, time series analysis, dynamical systems, chaos, feigenbaum number, universality, standard maps, flows, [linear algebra,matrices,ODE] in the context on linear dynamics, numerical analysis, dynamics using matrices,
 
 - Manifestations of Universality of Chaos
 - NLD is in weather, flows (air,fluid), non linear oscillators (pendula, human heart, fireflies, electronic systems), protein folding, classical mechanics (three-body problem, paired black holes) etc.
@@ -53,6 +62,7 @@ maps, return maps, logistic map, bifurcation diagram, time series analysis, dyna
 - NLD developed in the 1960's as a result of computers, which are absolutely essential to solve non-integrable ODE's numerically. Experimental Mathematics relies on the computer as the laboratory
 - Problems like an artifical pancreas aid for diabetes are difficult because the response of human body to insulin is non-linear. ODE's have reduced the necessity for animal testing. A very interesting [application](https://www.youtube.com/watch?v=a790FlSLIQo) of ODE's. The role of computers in such applications is amazing!
 - Using stable and unstable manifolds to design [spacecraft trajectories](https://www.youtube.com/watch?v=PRbAag_crbo) (with Jeff Parker)
+- NLD is interdisciplinary from Economics, Medicine, Mechanical systems and others from the field trips
 
 ## Intro
 
@@ -249,3 +259,113 @@ Standard map is non-disspative (no attractors) but there is still chaos
   - Quasi-Periodic orbitic
 - A nonlinear system can have any number of attractors, of all types, sprinkled around the state space. Their basins of attraction partition the state space. There's no way to know where they are, how many there are, what types etc.
 - In determininstic dynamical systems and intersection cannot occur in the state space or the orbit because at the intersection there would be two paths for the trajectory which is a violation of determinism
+
+### ODEs, Vector fields and Dynamical landscapes
+
+- Transformation to convert higher order ODE's to n first order ODEs . Nth order ODE needs n-1 helper variables![1](images/2020-06-02-12-49-58.png) ![1](images/2020-06-02-12-57-46.png). Each of the n vectors in this representation is a vector field that gives the slope
+  - Derivates on the LHS, RHS only captures dynamics of the system i.e how things change based on values of state variables and parameters
+  - Vectors are thin matrices, single col/row
+  - Elements of the above vector are the two state variables (position x, velocity v) of SHO. State vector contains state variables
+  - **The number of state variables, height of the state vector, the number of axes in the state space, order of the original ODE is all the same (2 here).**
+  - 2-D cannot be chaotic. 3 dimensions is a necessary condition for chaos in continuous time systems
+  - Time independent representation ![2](images/2020-06-02-12-57-01.png)
+  - Think of a ball placed as a way to visualize the development of trajectories in state space but not in the physical sense
+  - The derivative vector field (i.e the slope) at every point is tangent to the solution
+- Matrices capture how a ball rolls on a dynamical landscape. The statement is completely true everywhere if the landscape is defined by a linear ODE (like a bowl/saddle). The matrix is only good locally if the system in nonlinear.
+- If the system is nonlinear we can't write the ODE in matrix form i.e we can't write $\dot{\vec{x}}=A \vec{x}$ with only numbers for A (since they have products, transcendentals etc). But we can linearize non-linear ODEs using **Partial Derivatives and Jacobian matrix**.
+- Jacobian matrix is a local linear approximation of a non-linear landscape and it's eigen values/vectors tell what kind of linear landscape (bowl/saddle) is a good fit
+
+### Numerical ODE Solvers
+
+- An ODE tells for every point in the state space what the derivate is i.e in which direction will the trajectory/state evolves
+- ![1](images/2020-06-02-13-42-07.png)
+- The differential equation only gives the direction in which state is going to evolve but not the next point unlike a difference equation. This requires additional work done by the ODE solver.
+- Numeric solvers take as input the ODE, initial condition and time step (del T) and gives an estimate of the state at $\vec{X} (t_0 + \Delta t)$ ![2](images/2020-06-02-13-47-45.png)
+
+### Two simple ODE solvers: forward and backward Euler
+
+- To figure out what direction is downhill, do a vector sum of x' and v' (i.e the state variable derivatives) ![1](images/2020-06-02-14-02-32.png)
+- Forward Euler (Spirals out): "Follow the Slope".
+  - Effort vs Accuracy tradeoff on how far down the slope
+  - Computed as: $ \vec{x}(t_0 + \Delta t) = \vec{x}(t_0) + \Delta t \cdot \vec{x'} (t) $
+- Backward Euler (Spirals in)
+  - $\vec{x}\left(t_{0}+\Delta t\right)=\vec{x}\left(t_{0}\right)+\Delta t \cdot \vec{x}_{FE}^{\prime}\left(t_{0}+\Delta t\right)$
+  - $\vec{x}_{FE}^{\prime}$ is not the derivative of the original point but the derivative at the point where we get to if we take one step using forward Euler
+  - This is useful when the direction pointed by FE is at an offset compared to actual path.
+
+### Solving ODE's of a SHO
+
+- v/x are circles (ideal solutions for non-dissipative systems) but these are sines and cosines in the time domain
+- Each Forward Euler solution point turns as a spiral around the circle
+- Time step exacerbates the error
+- ![1](images/2020-06-02-16-28-51.png)
+- Backward euler replicates the direction of the next step (one after FE) at the original point ![2](images/2020-06-02-16-32-06.png)
+- Backward Euler produces the exact solution for a dampened SHO due to numerical damping ![3](images/2020-06-02-16-33-17.png)
+- FE produces negative damping (more like a push), BE produces positive damping
+- FE and BE are not used in practice but are useful in understanding how ODE solvers work and how they break
+
+### ODE Solvers: Error and Adaptation
+
+- Forward Euler overshoots because of the Taylor series (approximation at a point) ![1](images/2020-06-02-17-30-49.png)
+- ![2](images/2020-06-02-17-33-55.png)
+- The local truncation error of FE is not proportional to the step size (square of it) and it is dependent on the dynamical landscape
+- Types of errors:
+  - Truncation error: From terms in the series that you didn't use
+  - Roundoff error: From the digits that the computer cut off. Errors snowball due to wrong value getting to the next step
+  - Observational error: Inserted between the system and the observer
+  - Dynamical Error: Coupled back into the system (Dangerorous as it can snowball)
+- Local truncation error for FE (for a single step). $O (\Delta x^2)$ or O($h^2$) error: $\frac{1}{2} \Delta x^{2} f^{\prime \prime}\left(x_{0}\right)$
+- BE also has a $O (\Delta x^2)$ or O($h^2$) error
+- The average of these errors and then use combined slope of both methods to move forwards. Trapezoidal method with error h^3 which is lesser than h^2 ![2](images/2020-06-02-17-42-36.png).
+- Geometry of landscape determines step size. Adaptive time step ODE solvers ![2](images/2020-06-02-17-43-21.png)
+- ![Adaptive solver](images/2020-06-02-17-44-54.png)
+- Pseudocode. The tolerance is important to be carefully chosen to avoid numerical effects 
+  - ![Timestep](images/2020-06-02-17-46-41.png)
+
+### Production ODE solvers
+
+- Runge Kutta method (Test steps to understand landscape). Order of RK is the number of test steps
+- RK4 is commonly used
+- Single step ODE solvers use only info available in a single point to go forward: FE-RK1, BE-RK2
+- Multi-step ODE solvers use a bunch of points:
+  - Determine points down the solve
+  - Fit a function to this slope
+  - Integrate the function to get the actual
+
+### Numerical dynamics and due diligence while picking ODE solvers
+
+- Causes of errors in ODE solvers:
+  - Time step
+  - Geometry of landscape by f(x) [Absent in linear systems]
+  - Computation effects. Machine epsilon is the smallest width between two numbers on a number line. Smallest fraction of a number a computer can handle. But representations like IEEE Floating Point allow varying epsilon ![2](images/2020-06-02-18-18-26.png)
+
+- These errors can:
+  - Cause distortions, bifurcations etc
+  - Look like real physical dynamics
+  - Source is varied (algorithms, arithmetic system, timestep)
+- What could you do to diagnose spurious numerical dynamics (when using solvers from numpy,matlab etc. for eg)?
+  - Change the timestep
+  - Change the method
+  - Change the arithmetic
+  - But beware of machine $\epsilon$
+  - If results dont' change by changing above then they are probably right
+- Thickening of curve between a 500 and 5000 point SHO trajectory due to "Numerical error is violating the conservation of energy property of a SHO with β = 0; since this system is a conservative system a symplectic integrator should be used."
+  - ![2](images/2020-06-02-18-45-56.png)
+
+### Shadowing and Chaos
+
+- Chaotic systems are sensitively dependent on small changes in state
+- The ODE solvers inherently introduce small changes due to errors. How can we infer that the trajectory is the actual trajectory of a chaotic system?
+- **Shadowing Lemma** (only applies to chaotic attractors, **ONLY for STATE vectors and not parameters**) - Every noise-added trajectory on a chaotic attractor is shadowed by a true trajectory. Given, the noise does not bump trajectory out of the basin. This is for state noise and NOT parameter noise.
+  - ODE solvers produce points on the attractor but maybe not in the right order because at every step it gets bounced around due to error but the lemma saves us. With a reasonable solver, these effects happen on a tiny scale
+  - Highly magnified version of trajectories not noticeable at level of vision ![1](images/2020-06-02-19-09-35.png)
+- For a fixed point attractor, perturbation will shrink naturally
+- Numerical errors in period cycle present ![3](images/2020-06-02-19-10-31.png) but the difference will shrink because of the contraction of state space of the transverse stable manifold that slopes downhill towards the limit cycles (like the curve in a hat)
+
+### Solving ODE's numerically, Review
+
+![ODEs](images/2020-06-02-19-29-56.png)
+
+PDE's have more than one independent variable. PDE's are specially useful with fluid transfer
+
+![PDE](images/2020-06-02-19-32-02.png)
