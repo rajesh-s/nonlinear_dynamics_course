@@ -31,6 +31,20 @@ Code files are present [here](./code)
   - [Numerical dynamics and due diligence while picking ODE solvers](#numerical-dynamics-and-due-diligence-while-picking-ode-solvers)
   - [Shadowing and Chaos](#shadowing-and-chaos)
   - [Solving ODE's numerically, Review](#solving-odes-numerically-review)
+  - [Dynamics and State space deformation](#dynamics-and-state-space-deformation)
+  - [Lyapunov exponents](#lyapunov-exponents)
+  - [Sections and Projections](#sections-and-projections)
+  - [Unstable periodic orbits](#unstable-periodic-orbits)
+  - [Fractals and Chaos](#fractals-and-chaos)
+- [Nonlinear time-series analysis](#nonlinear-time-series-analysis)
+  - [Time-series analysis and the observer problem](#time-series-analysis-and-the-observer-problem)
+  - [Delay - coordinate embedding](#delay---coordinate-embedding)
+  - [Topology, diffeomorphisms, and reconstruction of dynamics](#topology-diffeomorphisms-and-reconstruction-of-dynamics)
+  - [Estimating Embedding Parameters](#estimating-embedding-parameters)
+    - [Choosing the right $\tau$](#choosing-the-right-math-xmlnshttpwwww3org1998mathmathmlsemanticsmrowmiτmimrowannotation-encodingapplicationx-textauannotationsemanticsmathτ)
+    - [Choosing the right m (Embedding dimension)](#choosing-the-right-m-embedding-dimension)
+  - [Caveats and Extensions](#caveats-and-extensions)
+    - [Due diligence required in Non Linear Time Series Analysis](#due-diligence-required-in-non-linear-time-series-analysis)
 
 ## Terminology
 
@@ -46,15 +60,20 @@ Code files are present [here](./code)
 | Hamiltonian | Synonym for conservative/non-dissipative|
 | Conservation | No friction, Ideal|
 | Nonintegrability | Applies to only non-dissipative/hamiltonian systems. Think of it as "can't be solved in closed form/analytically"|
+| Non stationarity| Dynamics changing during the process of measurement|
 
 Nonlinearity is a necessary condition for chaos. Not all nonlinear systems are chaotic
 
 Non integrabilitiy (if the ODE is non linear, possible that there might not exist an **analytic** solution) is a necessary and sufficient condition for chaos. Such ODE's are solved **numerically** (with a computer)
 
+3 dimension is a necessary condition for chaos in flows but not maps
+
+Many (not all) chaotic structures have fractal space structure
+
 ## Learning that made this course very interesting
 
 Concepts learnt:
-maps, return maps, logistic map, bifurcation diagram, time series analysis, dynamical systems, chaos, feigenbaum number, universality, standard maps, flows, [linear algebra,matrices,ODE] in the context on linear dynamics, numerical analysis, dynamics using matrices,
+maps, return maps, logistic map, bifurcation diagram, time series analysis, dynamical systems, chaos, feigenbaum number, universality, standard maps, flows, [linear algebra,matrices,ODE] in the context on linear dynamics, numerical analysis, dynamics using matrices, delay coordiante embedding, mutual information, cantor set calculations, machine epsilon
 
 - Manifestations of Universality of Chaos
 - NLD is in weather, flows (air,fluid), non linear oscillators (pendula, human heart, fireflies, electronic systems), protein folding, classical mechanics (three-body problem, paired black holes) etc.
@@ -63,6 +82,7 @@ maps, return maps, logistic map, bifurcation diagram, time series analysis, dyna
 - Problems like an artifical pancreas aid for diabetes are difficult because the response of human body to insulin is non-linear. ODE's have reduced the necessity for animal testing. A very interesting [application](https://www.youtube.com/watch?v=a790FlSLIQo) of ODE's. The role of computers in such applications is amazing!
 - Using stable and unstable manifolds to design [spacecraft trajectories](https://www.youtube.com/watch?v=PRbAag_crbo) (with Jeff Parker)
 - NLD is interdisciplinary from Economics, Medicine, Mechanical systems and others from the field trips
+- Nyquist rate only holds good for linear systems
 
 ## Intro
 
@@ -144,9 +164,9 @@ maps, return maps, logistic map, bifurcation diagram, time series analysis, dyna
 - As R increases in logistic map, we see oscillatory convergence and period doubling as visible from both time series and bd
 - Differnet x0 follows the same path but in a different order which is why bd are useful compared to timeseries plots
 
-Important aspects of NLD:
-- Structure of chaotic attractors
-- Sensitive dependance on initial conditions
+**Important aspects of NLD:**
+- **Structure of chaotic attractors**
+- **Sensitive dependance on initial conditions**
 
 ![BD](images/2020-05-29-02-20-32.png)
 
@@ -369,3 +389,164 @@ Standard map is non-disspative (no attractors) but there is still chaos
 PDE's have more than one independent variable. PDE's are specially useful with fluid transfer
 
 ![PDE](images/2020-06-02-19-32-02.png)
+
+### Dynamics and State space deformation
+
+- Smale's horseshoe, takes close points far apart and far points close to each other ![1](images/2020-06-02-20-23-52.png). A formal observation for chaos
+- Dissipation happens when state space shrinks
+- ![3](images/2020-06-02-20-33-53.png)
+
+### Lyapunov exponents
+
+- Just like an eigen value is associated with each eigen vector, a lyapunov exponent is associated with each un/stable manifold. Growth along those manifolds grows as e^(lyapunov exponent*t)
+- Lyapunov exponents (two sets local and global (t->$ \infty $)):
+  - $n$ -dim system has $n \lambda_{\mathrm{i}}$
+  - negative $\lambda_{i}$ compress state space along stable manifolds
+  - positive $\lambda_{i}$ stretch it along unstable manifolds
+- If all $ \lambda $ are negative, dynamics is shrinking the fabric of state space in all directions and all trajectories converge to a fixed point
+- If all $ \lambda $ are positive, dynamics is stretching the fabric of state space in all directions and all trajectories converge to a fixed point
+- To get an attractor, shrinking has to win in the longterm i.e $\Sigma \lambda_{\mathrm{i}}<0$ for dissipative systems. Positive lambda is a signature of chaos (a necessary condition)
+- Trajectories that are not on any manifold feel a mix of the effects of stable and unstable manifolds but because of exponential nature, the largest (numeric value denoted as lambda1) lambda wins in the long term
+- These exponents capture how fast things shrink or grow in every region of a chaotic attractor
+- Since positive exponent is a characteristic of a chaotic system and a negative exponent a char of dissipative (attractor), for a chaotic attractor we need atleast one positive and one negative 
+
+### Sections and Projections
+
+- Strategies for reducing dimension of state spaces to understand while still preserving meaning of the object working with
+- Projections
+  - ![1](images/2020-06-02-20-56-11.png)
+  - Creates things like crossing, that are illegal in dynamics and can be confusing
+  - In mathematics, repeated projections more than once it does not change things beyond the first time
+  - Time series are a projection
+- Sections
+  - They are like a CAT scan, they take slices of an object.
+  - Generally, sections are one dimension less than the object
+  - Usually called Poincare section gives very good illustration of the structure
+  - Points on a plane of section (sections through space) exist only where the trajectory pierces the plane ![2](images/2020-06-02-21-00-55.png)
+  - Sections through time. Shining light only at specific instances. This discretizes time,turning flows to maps
+  - Highlights topological changes in the attractor
+
+### Unstable periodic orbits
+
+- Unstable periodic orbit: Imagine a ball rolling on the brim of a volcano
+- Stable periodic orbit: Ball in the curve of a hat
+- Eigen value associated with the transverse unstable direction determines the tendency to fall off. Bigger in case a of a cup rather than a doughnut ![1](images/2020-06-02-22-34-06.png)
+- There are infinite number of unstable periodic orbits embedded in chaotic attractors ![2](images/2020-06-02-22-35-54.png)
+  - Exponential divergence of neighboring trajectories
+  - Often fractal
+  - Covered densely by trajectories
+- ![1](images/2020-06-02-22-37-59.png)
+  - The UPO's have different periods
+  - The third image, goes around each side of the attractor an unequal number of times (3 of left, 5 on right). Imagine attractors being at the centre of the basin of attraction.
+  - There are a number of trajectories even within a small distance from the current one. Any trajectory in the basin will eventually visit any unstable periodic we choose, when it visits one it may traverse more times for a doughnut like structure than a cup. The trajectory will eventually fall off the UPO because it was not on it but only near it.
+
+### Fractals and Chaos
+
+- Fractals are non-integer fraction dimension
+- Cantor set visualization![1](images/2020-06-03-11-20-08.png)
+- Cantor set calculation: The epsilon here is the fractal dimension ![1](images/2020-06-03-11-18-26.png)
+- Capacity dimension ![1](images/2020-06-03-11-21-27.png)
+- Norm is a form of measurement. The cantor set uses euclidean norm ![1](images/2020-06-03-11-22-09.png)
+- Cantor set from lorenz attractor ![2](images/2020-06-03-11-18-48.png)
+- Most chaotic systems but not all have fractal space structure
+
+## Nonlinear time-series analysis
+
+### Time-series analysis and the observer problem
+
+- Spectral analysis tools like FFT's allows frequency analysis of time series plots
+  - Separates signal component into it's building blocks
+  - Superposition of fft gives the signal. The requirement for this is for the system to be periodic, linear. Problematic if signal is non-stationary
+- Spectrogram: Frequency vs time
+
+- In NLD, we may not know all state variables and measuring them may affect the dynamics of the system. In reality, we would have a function of the state variables ![1](images/2020-06-03-12-17-41.png)
+- In the kinds of systems (dissipative) covered in this course, there can be only one downhill direction at any point in state space. This may not be true in non-autonomous systems the dynamics change with landscape.
+- Projections should not cross trajectories
+- Such projections would lead to sensor altering the fundamental shape of the object
+- **Observer Problem** : To deduce the internal state of the system and their values from the outputs of the system. Eg: Trying to find internal states of a traffic light by looking at the colours. This involves undoing a projection ![1](images/2020-06-03-12-24-11.png)
+
+### Delay - coordinate embedding
+
+- A single measurement in time of a system, projects the state space down in a single axis
+  ![1](images/2020-06-03-12-31-05.png)
+- How do we go back from the single axis to the projection?
+  - Problems with doing it:
+    - Derivatives magnify noise. ![1](images/2020-06-03-12-34-04.png) ![1](images/2020-06-03-12-34-19.png)
+    - Not having measured all state variables
+  - To solve above, we have a technique called delay-coordinate embedding - Reinflate the squashed data to get a qualitatively identical (next segment) copy of original.
+    - It's like running a comb through the data, with number of comb equal to the number of axes separated by a delay. ($ \tau $). m is the embedding dimension ![1](images/2020-06-03-12-37-55.png)
+    - Example:
+      - Step 1 ![1](images/2020-06-03-12-39-09.png)
+      - Step 2 ![2](images/2020-06-03-12-39-30.png)
+      - Choosing the right m & $ \tau $ is necessary to get a transformation like this
+- **Takens theorem**: For the right **$\tau$** and **enough dimensions**, the embedded dynamics are diffeomorphic to (have same topology as the original state-space dynamics. ![1](images/2020-06-03-12-41-29.png)
+  - Effects of $\tau$ on reconstructed dynamics:
+    - If $\tau$ was 0, all the teeth of the comb would be pointing to the same number
+      ![1](images/2020-06-03-12-46-53.png)
+    - Machine epsilon should be able to handle the $\tau$ values
+    - Tau should be large enough to capture all features. Also, note that tau should not be equal to the period as it would result in the same point
+    - The embedding and true dynamics can look different when tau gets really large
+- To get the topology right using delay coordinate embedding we need to get enough axes (eg. you can't get the topology of climate in a place just by recording a thermometer). Atleast twice as many comb teeth as there are state variables in the system ![1](images/2020-06-03-13-59-08.png)
+  - However, this is an overly pessimistic condition since it is not possible to know all the state variables. ![1](images/2020-06-03-14-03-14.png). Chicken and egg problem because we have to embed data before we calculate $d_cap$
+  - For the measuring function in Takens theorem, we need not know what it is measuring, we just want to know it is smooth and uniformly sampled (it need not be continuous)
+
+### Topology, diffeomorphisms, and reconstruction of dynamics
+
+- Good data and good method (tau,m) is required for Takens theorem.
+- Geometry is measureable (metric) but topology is not. Only number of pieces/holes matter in topology.
+  - Similar topology different geometry
+    ![1](images/2020-06-03-14-16-06.png)
+  - Similar geometry different topology
+    ![2](images/2020-06-03-14-16-53.png)
+- Diffeomorphism
+  - Think of a coffee mug and doughnut made of clay. We can deform to match geometry without breaking topology (new pieces/holes)
+  - Mapping from one to the other is differentiable and has a differentiable inverse. What that means:
+    - qualitatively the same shape
+    - have the same dynamical invariants (eg. $\lambda$)
+  - A correct embedding is related to the true dynamics by such a transformation if the conditions of the Takens theorem are met
+  - The real vs reconstructed attractors don't look alike to us because our eyes respond to geometry not topology
+  - Topology really matters, many of the important properties of dynamical systems such as $\lambda$ are invariant under such transformations (diffeomorphisms that preserve topology).
+    - This means we can measure one thing from a very complicated system, do the embedding, compute the value of a dynamical invariant like $\lambda$ and assert that this holds for the true dynamics in the system
+  - For delay-coordinate embedding to work, we only need to measure a smooth generic transformation of atleast one state variable. We do not need to have direct, untransformed measurements of a single state variable. In case of Lorenz's attractor we measure x*y-z transformation of all state variable and DCE worked fine
+
+### Estimating Embedding Parameters
+
+#### Choosing the right $\tau$
+
+- As $\tau$ gets larger there is the problem of overfolding due to numeric effects. Determining which of the value results in the closest to the true dynamic is a challenge
+- Identifying the first time where the dynamics was unfolded is a challenge. To understand this better,(only for the sake of understanding aid) consider the linear system example of basis vectors
+  - ![Linear](images/2020-06-03-17-03-52.png)
+  - In linear dynamics, we may be able to use autocorrelation to determine the first zero to find tau of linear independence
+  - But in NLD, the autocorrelation function would ignore the non linear correlations that occur between the two basis vectors.
+  - Problem with the first zero is that after a 2$\pi$ transformation it wraps on itself leading to the overfolding problem which may lead to numerical error in the nonlinear case
+    ![1](images/2020-06-03-17-06-21.png)
+  - Choose $\tau$ such that the basis vectors are as independent as possible while not wrapping the system around on itself
+  - Mutual information should be less i.e each coordinate sharing the least amount of information with the other. The small angle tau arrows share more info that the right angle tau arrows for example.
+  - Coordinates in the delay vector should have the least amount of shared information. Some heuristics for estimating $\tau$. The method of selecting $\tau$ is highly application-specific ![1](images/2020-06-03-17-20-15.png)
+
+#### Choosing the right m (Embedding dimension)
+
+- Heuristic method of false neighbours
+  - If there are not enough dimensions for the attractor to unfold, there will be crossings in the dynamics (something which is not allowed in dynamic) and is an error in projection
+  - False neighbours, neighbours in one dimension but not neighbours in a higher dimension. The fraction of false neighbours needs to be low
+  - Dimension of the original system cannot be determined from the m obtained using this method because it's merely a heuristic and not an actual proof
+
+### Caveats and Extensions
+
+- Delay cooridnate embedding is a good technique because it let's us reconstruct unmeasured information
+  - The reason this works is the standard form of the ODE. The change in each state varibale is a function of the other state variables. First order forward differences ![1](images/2020-06-03-17-53-06.png)
+- Real life challenges in chaotic systems. Takens theorem requires:
+  - An infinite amount of **noise**-free data measured by a smooth measurement function on state space.
+    - If the false neighbour ratio flattens out at a higher than required threshold, suspect noise ![1](images/2020-06-03-18-02-36.png)
+    - Noise increases with embedding dimension
+  - Sampling: Uniformly sampled in time and sampled quickly enough to capture all the important dynamics. (Nyquist rate only holds good for linear systems). Chaotic signals have meaningful content at all frequencies, they are broadband. Chaotic (also, veils in logistic map): ![1](images/2020-06-03-17-58-55.png)
+  - Stationarity: Dynamics should not change while measuring. The large enough data set required to construct dynamics means multiple switching dynamics maybe involved in that time space
+
+#### Due diligence required in Non Linear Time Series Analysis
+
+- Double check your estimates of the embedding parameters by calculating dynamical invariants from the embeddings, then varying $m$ and $\tau$ and seeing if their values change
+- Downsample your data and repeat the analysis
+- Chunk up your data and repeat the analysis on the different chunks
+- Know the limitations (e.g., sampling rate, data length)
+- Do not extend your conclusions beyond what's justified by those limitations
+- Keep an informed eye open for noise effects
