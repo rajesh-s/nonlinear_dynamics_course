@@ -4,6 +4,8 @@ My progress and notes from the [course on nonlinear dynamics](https://www.comple
 
 Code files are present [here](./code)
 
+Certification for the course is [here](https://www.complexityexplorer.org/courses/100-nonlinear-dynamics-mathematical-and-computational-approaches/certificates/3759472641)
+
 - [Terminology](#terminology)
 - [Learning that made this course very interesting](#learning-that-made-this-course-very-interesting)
 - [Intro](#intro)
@@ -45,6 +47,18 @@ Code files are present [here](./code)
     - [Choosing the right m (Embedding dimension)](#choosing-the-right-m-embedding-dimension)
   - [Caveats and Extensions](#caveats-and-extensions)
     - [Due diligence required in Non Linear Time Series Analysis](#due-diligence-required-in-non-linear-time-series-analysis)
+  - [Computing Fractal Dimensions](#computing-fractal-dimensions)
+    - [Capacity Dimension](#capacity-dimension)
+    - [Correlation dimension](#correlation-dimension)
+  - [Computing Lyapunov exponents](#computing-lyapunov-exponents)
+    - [Wolf's method](#wolfs-method)
+    - [Kantz method](#kantz-method)
+  - [Noise & Filtering](#noise--filtering)
+- [Applications](#applications)
+  - [Prediction](#prediction)
+  - [Control](#control)
+    - [OGY Control](#ogy-control)
+- [TODO](#todo)
 
 ## Terminology
 
@@ -73,7 +87,9 @@ Many (not all) chaotic structures have fractal space structure
 ## Learning that made this course very interesting
 
 Concepts learnt:
-maps, return maps, logistic map, bifurcation diagram, time series analysis, dynamical systems, chaos, feigenbaum number, universality, standard maps, flows, [linear algebra,matrices,ODE] in the context on linear dynamics, numerical analysis, dynamics using matrices, delay coordiante embedding, mutual information, cantor set calculations, machine epsilon
+maps, return maps, logistic map, bifurcation diagram, time series analysis, dynamical systems, chaos, feigenbaum number, universality, standard maps, flows, [linear algebra,matrices,ODE] in the context on linear dynamics, numerical analysis, dynamics using matrices, delay coordiante embedding, mutual information, cantor set calculations, machine epsilon, lyapunov exponent, delay-coordinate embedding, fractal dimensions and others
+
+``` We use computers to study dynamical systems but computers themselves are dynamical systems and the dynamics are often chaotic ```
 
 - Manifestations of Universality of Chaos
 - NLD is in weather, flows (air,fluid), non linear oscillators (pendula, human heart, fireflies, electronic systems), protein folding, classical mechanics (three-body problem, paired black holes) etc.
@@ -83,13 +99,17 @@ maps, return maps, logistic map, bifurcation diagram, time series analysis, dyna
 - Using stable and unstable manifolds to design [spacecraft trajectories](https://www.youtube.com/watch?v=PRbAag_crbo) (with Jeff Parker)
 - NLD is interdisciplinary from Economics, Medicine, Mechanical systems and others from the field trips
 - Nyquist rate only holds good for linear systems
+- Finding Cache Misses using k-neighbour Lorenz Method of Averages is remarkable ![1](images/2020-06-03-22-59-47.png)
+- An almost pattern that does not repeat? **CHAOS**. **Computers are dynamical systems** ![1](images/2020-06-03-23-01-34.png)
+- From Saturn's moon Hyperion, to asteroids, to the human body to the computers, NLD is everywhere
+- Chaos and Control: To control PLL!! ![1](images/2020-06-03-23-29-06.png)
 
 ## Intro
 
 - **Chaos** - Complex behavior, arising in a deterministic nonlinear dynamic (NLD) system with 2 properties: **sensitive dependence on initial conditions** (butterfly effect, trajectory changes based on initial condition) and characteristic structure. Systems that exhibit chaos are ubiquitous
 - Systems: ![Type of systems](images/2020-05-08-23-33-05.png)
 - Derivatives represent the math of change with time
-- **Complexity** (complicated systems with simple behavior) **vs Chaos** (simple systems with complex behavior)
+- **Complexity** (complicated systems with simple behavior, larger scale structure that emerges) **vs Chaos** (simple systems (not a lot of state variables/moving parts) with complex behavior)
 - Flow (continuous in time) vs Maps (discrete time intervals with no knowledge of state of the system between intervals)
 
 ![Map](images/2020-05-08-23-45-55.png)
@@ -489,6 +509,9 @@ PDE's have more than one independent variable. PDE's are specially useful with f
 - To get the topology right using delay coordinate embedding we need to get enough axes (eg. you can't get the topology of climate in a place just by recording a thermometer). Atleast twice as many comb teeth as there are state variables in the system ![1](images/2020-06-03-13-59-08.png)
   - However, this is an overly pessimistic condition since it is not possible to know all the state variables. ![1](images/2020-06-03-14-03-14.png). Chicken and egg problem because we have to embed data before we calculate $d_cap$
   - For the measuring function in Takens theorem, we need not know what it is measuring, we just want to know it is smooth and uniformly sampled (it need not be continuous)
+- It is useful to embed scalar time-series data before building a prediction model of a deterministic dynamical system because:
+  - It exposes the temporal patterns in spatial form.
+  - If you don't do that, the false crossings created by the projection involved in the measurement can make your predictions wrong.
 
 ### Topology, diffeomorphisms, and reconstruction of dynamics
 
@@ -550,3 +573,128 @@ PDE's have more than one independent variable. PDE's are specially useful with f
 - Know the limitations (e.g., sampling rate, data length)
 - Do not extend your conclusions beyond what's justified by those limitations
 - Keep an informed eye open for noise effects
+
+### Computing Fractal Dimensions
+
+#### Capacity Dimension
+
+$N(\epsilon)=\frac{k=1}{\epsilon^{d_{cap}}}$
+
+$\log (N(\epsilon))=d_{cap} \log (1 / \epsilon)$
+
+Slope of this give the capacity dimension given by the above formula ![1](images/2020-06-03-19-13-55.png)
+
+$d_{cap} \equiv \lim _{\epsilon \rightarrow 0^{+}} \frac{\log (N(\epsilon))}{\log (1 / \epsilon)}$
+
+- $\epsilon$ - Size of the circle/side of square
+- Capacity dimension also known as box dimension is covering with shapes of size epsilon. Determining how many boxes for each epsilon.
+ ![1](images/2020-06-03-20-04-34.png)
+
+- Calculate number of epsilon balls required for each size and fit a line through these points to get the $d_cap$
+  ![1](images/2020-06-03-19-25-53.png)
+- This is useful in finding capacity dimension of natural opbjects ![1](images/2020-06-03-19-27-42.png)
+
+- If you start from Time Series, use DCE to get the projection and then apply the steps to find number of squares of each size (reduce the size of the ball to the least possible as lim $\epsilon \rightarrow 0$) to get the slope and capacity dimension
+
+#### Correlation dimension
+
+- To reduce the computational expensense of lim $\epsilon \rightarrow 0$)
+- Start by defining pointwise dimension
+- Pick a point on the trajectory
+- Draw a ball of radius epsion centered on that point
+- Count the number of points and the number of points within the epilon of that point
+- Vary Epsilon. Average this over different X
+- ![1](images/2020-06-03-19-52-12.png)
+- The number of X's (sea of epsilon) ![2](images/2020-06-03-19-52-47.png) $d_{corr} <=d_{capacity} $
+
+- Very fast algorithm compared to capacity dimension calculation ![1](images/2020-06-03-20-01-21.png)
+
+- Capacity dimension measures the number of boxes needed to cover the points in a set, whereas correlation dimension measures the clustering of those points.
+
+### Computing Lyapunov exponents
+
+- Exponent that parametrizes the exponential growth of the separation between two points on the chaotic attractor as time goes forward
+- Chaotic: Atleast one positive lamda
+- Dissipative: Some are negative lamda
+- They are dynamical invariants, i.e we can take an attractor and deform it and bend it and as long as we don't change the topology, the exponent will be preserved
+
+- DCE of time series data to reconstruct topology
+- Operationalize this ![1](images/2020-06-03-20-53-52.png)
+
+#### Wolf's method
+
+- Choose a point on the trajectory of a dynamical system
+- Look for the point's nearest neighbour
+- Track the distance between those points
+- Notice renormalization at the end point of one set of points i.e x(t1) ![1](images/2020-06-03-20-58-38.png)
+
+Assumption: The two chosen points are on the same trajectory separated by time. This applies to autonomous systems (always in downward slope irrespective of time) (non autonomous sytems can have trajectory points that go in different directions at different times)
+
+#### Kantz method
+
+Noise in data is bad as it's reliant on a single point
+
+- Choose a point on the trajectory of a dynamical system
+- Draw an epsilon ball around it ![1](images/2020-06-03-21-03-02.png)
+- Find all the points inside the ball
+- Measure distances from central point
+- Average all distances
+- Compute one step forward point (green) of all the chosen points ![1](images/2020-06-03-21-05-22.png). Find distances again.
+- The ratio of average of distance1 to distance2 is a measure of stretching factor (Lyapunov exponent) of the state space
+
+![1](images/2020-06-03-21-07-54.png)
+
+Assumption: All points are in the same trajectory
+
+### Noise & Filtering
+
+- Low pass filter allows only low frequency components. Linear filtering in a bad idea if system is chaotic as it is hard to distinguish signal from noise
+- Non linear alternatives:
+  - Geometry of stable and unstable manifolds
+    - Overlapping forward and backward states to reduce the size of noise ![1](images/2020-06-03-22-03-18.png)
+    - ![1](images/2020-06-03-22-03-52.png)
+    - ![2](images/2020-06-03-22-04-08.png)
+    - ![3](images/2020-06-03-22-05-30.png)
+  - Topological properties
+    - Isolated points are usually noise
+    - ![1](images/2020-06-03-22-06-09.png)
+    - ![2](images/2020-06-03-22-06-54.png)
+
+## Applications
+
+### Prediction
+
+- Machine learning can be used (although not directly) in Non Linear Dynamics
+- Lorenz's method of analogues
+  - Nearest neighbour in a dataset to predict behavior. Map closest matching parameters in data set and find it's next step
+  - k nearest neighbours makes this immune to noise
+  - ![1](images/2020-06-03-23-00-26.png)
+
+### Control
+
+![1](images/2020-06-03-23-06-00.png)
+
+- Saddle points in nonlinear systems only looks like this locally, if we backed up the manifolds woulve be curves
+![2](images/2020-06-03-23-20-02.png)
+- Control in State Space
+![3](images/2020-06-03-23-21-55.png)
+![4](images/2020-06-03-23-22-11.png)
+- Find a parameter value such that there exists a chaotic attractor with one thread close to the destination point.
+- Control Strategy amounts to tune the parameter to that setting and wait
+- The denseness will ensure that the trajectory eventually reaches
+- To stop, find an unstable periodic orbit near the destination. Then stabilize the system using local linear control. We use that UPO to balance the stable and unstable manifold like a saddle
+
+#### OGY Control
+
+- Reachability (get near destination): Dense Attractor Coverage
+- Controllability: Un/Stable manifold structure + UPO (embedded in the attractor) denseness (find one UPO near destination) + local-linear control (stay on UPO once nearby, rectangle in previous image)
+- OGY control cannot be used to stabilize a chaotic system at any point in its state space. Local linear control only.
+- OGY control is not for time critical applcations because we don't know how long it will take to the destination trajectory
+ ![1](images/2020-06-03-23-29-31.png)
+  - One way to workaround this is by using sensitive dependence (targeting to get there faster)
+    - ![1](images/2020-06-03-23-34-01.png)
+    - AI tool has been used to implement OGY control
+
+## TODO
+
+- Try [TISEAN](https://www.pks.mpg.de/~tisean/Tisean_3.0.1/index.html)
